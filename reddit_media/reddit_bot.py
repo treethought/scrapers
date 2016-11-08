@@ -60,7 +60,8 @@ class RedditBot(object):
             print(e)
             print('{} didnt work id --- {}'.format(post.title, post.id))
 
-    def download_audio(self, post, audio_only=True):  # TODO: downloads as opus right now, audio missing when mp3
+    # TODO: downloads as opus right now, audio missing when mp3
+    def download_audio(self, post, audio_only=True):
 
         if audio_only:
             sub_dir = os.path.join(MUSIC, str(post.subreddit))
@@ -81,10 +82,8 @@ class RedditBot(object):
             'quiet': True,
         }
 
-
         with yt.YoutubeDL(audio_options) as youtube:
             youtube.download([post.url])
-
 
     def detect_media_type(self, post):
 
@@ -107,10 +106,9 @@ class RedditBot(object):
             self.download_image(post)
 
 
-
 if __name__ == '__main__':
 
-    bot=RedditBot()
-    posts=bot.get_new_posts('truemusic')
+    bot = RedditBot()
+    posts = bot.get_new_posts('truemusic')
     for post in posts:
         bot.detect_media_type(post)
