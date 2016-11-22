@@ -13,8 +13,7 @@ class OrderSpider(scrapy.Spider):
     )
 
     order_urls_xpath = './/tr[1]/th/a/@href'
-    order_tables = '//body/div[2]/table'            # think this works
-# '    //*[@id="content"]/table[1]/tbody/tr[2]/td'
+    order_tables = '//body/div[2]/table'
 
     def parse(self, response):
         return [scrapy.FormRequest.from_response(response,
@@ -41,15 +40,13 @@ class OrderSpider(scrapy.Spider):
         for delivery in response.xpath(deliveries_xpath):
             i = OrderscrapeItem()
 
-            """ Number Order and payment method outsiide iterator
-                because they share the same xpath and need to be split.
-            """
+            # Number Order and payment method outsiide iterator
+            # because they share the same xpath and need to be split.
             numpay = delivery.xpath(numpay_xpath).extract()[0].split(' - ')
             i['order_num'], i['payment'] = numpay[0], numpay[1].strip()
 
-            """ Remaining fields have own xpath and are
-                scraped for each delivery table.
-            """
+            # Remaining fields have own xpath and are
+            # scraped for each delivery table.
             for field, field_xpath in delivery_fields.items():
                 raw = delivery.xpath(field_xpath).extract()[0]
                 i[field] = raw .replace('\xa0', '').strip()   # remove unicode
@@ -73,11 +70,10 @@ class OrderSpider(scrapy.Spider):
 
         i = response.meta['i']
 
-        """Info Table: Scrapes Customer and splits the time_delivered
-        selector into time, date, and day. Outside of iterator because of splitting.
-        """
+        # Info Table: Scrapes Customer and splits the time_delivered
+        # selector into time, date, and day. Outside of iterator because of splitting.
         customer_xpath = '//body/div[2]/table[1]/tr[2]/td/text()'
-        time_delivered_xpath = '//body/div[2]/table[1]/tr[6]/td/text()'
+        time_delivered_xpath = '//body/div[2]/table[1]/tr[9]/td/text()'
 
         # extract time, day, and date delivered from same table row
         time_delivered_full = response.xpath(time_delivered_xpath).extract()[0]
@@ -87,9 +83,8 @@ class OrderSpider(scrapy.Spider):
         i['date'] = time_delivered_full[16:]       # "12:00:00 PM Wed 04/20/16"
         i['customer'] = response.xpath(customer_xpath).extract()[0]
 
-        """Selects the payments table and each field's xpath extends from it.
-            Assign each xpath to the field's Item key..
-        """
+        # Selects the payments table and each field's xpath extends from it.
+        # Assign each xpath to the field's Item key..
         pay_table = response.xpath('//body/div[2]/table[2]')
 
         pay_fields = {    # each path extends of the pay_table's xpath
